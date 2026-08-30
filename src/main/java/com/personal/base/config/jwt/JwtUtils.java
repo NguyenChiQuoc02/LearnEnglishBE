@@ -5,8 +5,6 @@ import java.security.Key;
 import java.util.Date;
 
 import com.personal.base.services.UserDetailsImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -17,7 +15,6 @@ import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtUtils {
-  private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
   @Value("${bezkoder.app.jwtSecret}")
   private String jwtSecret;
@@ -46,20 +43,9 @@ public class JwtUtils {
             .parseClaimsJws(token).getBody().getSubject();
   }
 
-  public boolean validateJwtToken(String authToken) {
-    try {
-      Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);
-      return true;
-    } catch (MalformedJwtException e) {
-      logger.error("Invalid JWT token: {}", e.getMessage());
-    } catch (ExpiredJwtException e) {
-      logger.error("JWT token is expired: {}", e.getMessage());
-    } catch (UnsupportedJwtException e) {
-      logger.error("JWT token is unsupported: {}", e.getMessage());
-    } catch (IllegalArgumentException e) {
-      logger.error("JWT claims string is empty: {}", e.getMessage());
-    }
-
-    return false;
+  // Throws the specific jjwt exception (Expired/Malformed/Unsupported/IllegalArgument)
+  // so callers can report the exact reason instead of a generic failure.
+  public void validateJwtToken(String authToken) {
+    Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);
   }
 }

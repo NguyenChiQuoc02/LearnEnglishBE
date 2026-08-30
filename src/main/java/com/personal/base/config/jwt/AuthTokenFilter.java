@@ -4,6 +4,8 @@ package com.personal.base.config.jwt;
 import java.io.IOException;
 
 import com.personal.base.services.UserDetailsServiceImpl;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,12 +17,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-
 public class AuthTokenFilter extends OncePerRequestFilter {
+  public static final String AUTH_ERROR_ATTRIBUTE = "authError";
+
   @Autowired
   private JwtUtils jwtUtils;
 
@@ -34,7 +38,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
           throws ServletException, IOException {
     try {
       String jwt = parseJwt(request);
-      if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
+      if (jwt != null) {
+        jwtUtils.validateJwtToken(jwt);
         String username = jwtUtils.getUserNameFromJwtToken(jwt);
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -47,8 +52,15 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
       }
-    } catch (Exception e) {
-      logger.error("Cannot set user authentication: {}", e);
+    } catch (ExpiredJwtException e) {
+      logger.error("JWT token is expired: {}", e.getMessage());
+      request.setAttribute(AUTH_ERROR_ATTRIBUTE, "Token đã hết hạn, vui lòng đăng nhập lại");
+    } catch (UsernameNotFoundException e) {
+      logger.error("User from JWT token not found: {}", e.getMessage());
+      request.setAttribute(AUTH_ERROR_ATTRIBUTE, "Người dùng không tồn tại");
+    } catch (JwtException | IllegalArgumentException e) {
+      logger.error("Invalid JWT token: {}", e.getMessage());
+      request.setAttribute(AUTH_ERROR_ATTRIBUTE, "Token không hợp lệ");
     }
 
     filterChain.doFilter(request, response);

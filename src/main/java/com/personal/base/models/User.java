@@ -4,11 +4,11 @@ package com.personal.base.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,6 +35,18 @@ public class User {
 
   @NotBlank
   private String password;
+
+  @Column(name = "phone_number", length = 20)
+  private String phoneNumber;
+
+  @Column(name = "date_of_birth")
+  private LocalDate dateOfBirth;
+
+  @Column(length = 255)
+  private String address;
+
+  @Column(name = "avatar_url", length = 500)
+  private String avatarUrl;
 
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(  name = "user_roles",
