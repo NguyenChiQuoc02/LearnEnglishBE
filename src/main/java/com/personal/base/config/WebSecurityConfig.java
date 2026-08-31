@@ -78,6 +78,9 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     configuration.setAllowedHeaders(List.of("*"));
     configuration.setAllowCredentials(true);
+    // Custom response headers aren't readable by browser JS unless explicitly exposed;
+    // without this, axios can't see the server-generated filename on file downloads.
+    configuration.setExposedHeaders(List.of("Content-Disposition"));
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);

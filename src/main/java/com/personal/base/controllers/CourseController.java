@@ -1,5 +1,6 @@
 package com.personal.base.controllers;
 
+import com.personal.base.dto.common.PageResponse;
 import com.personal.base.dto.course.CourseRequest;
 import com.personal.base.dto.course.CourseResponse;
 import com.personal.base.dto.course.CourseStudentResponse;
@@ -51,8 +52,12 @@ public class CourseController {
 
   @GetMapping("/manage")
   @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
-  public ResponseEntity<List<CourseResponse>> listManagedCourses(@AuthenticationPrincipal UserDetailsImpl currentUser) {
-    return ResponseEntity.ok(courseService.listManagedCourses(currentUser));
+  public ResponseEntity<PageResponse<CourseResponse>> listManagedCourses(
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "20") int size,
+          @RequestParam(required = false) String keyword,
+          @AuthenticationPrincipal UserDetailsImpl currentUser) {
+    return ResponseEntity.ok(courseService.listManagedCourses(page, size, keyword, currentUser));
   }
 
   @GetMapping("/{id}/leaderboard")
