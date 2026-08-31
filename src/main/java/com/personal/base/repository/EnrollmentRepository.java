@@ -13,6 +13,8 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
 
   Boolean existsByUserIdAndCourseId(Long userId, Long courseId);
 
+  Boolean existsByCourseId(Long courseId);
+
   List<Enrollment> findByUserId(Long userId);
 
   // Course leaderboard/ranking — highest cumulative score first.

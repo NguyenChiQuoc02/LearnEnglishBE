@@ -202,6 +202,16 @@ public class CourseService {
             .collect(Collectors.toList());
   }
 
+  @Transactional
+  public void deleteCourse(Long courseId) {
+    Course course = getCourseEntity(courseId);
+    if (enrollmentRepository.existsByCourseId(courseId)) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot delete a course that already has enrolled students");
+    }
+    vocabularyItemRepository.deleteByCourseId(courseId);
+    courseRepository.delete(course);
+  }
+
   public Course getCourseEntity(Long id) {
     return courseRepository.findById(id)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
