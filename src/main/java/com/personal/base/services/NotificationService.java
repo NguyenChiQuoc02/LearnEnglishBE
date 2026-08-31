@@ -49,13 +49,65 @@ public class NotificationService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Admin not found"));
 
     Notification notification = new Notification();
+    notification.setCreatedBy(admin);
+    applyRequestFields(notification, request);
+
+    notification = notificationRepository.save(notification);
+    if (notification.getDeliveryType() == NotificationDeliveryType.IMMEDIATE) {
+      dispatch(notification);
+    }
+
+    return NotificationResponse.from(notification);
+  }
+
+  @Transactional
+  public NotificationResponse updateNotification(Long id, NotificationRequest request) {
+    Notification notification = getNotificationEntity(id);
+    if (notification.getStatus() == NotificationStatus.SENT) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot edit a notification that has already been sent");
+    }
+
+    applyRequestFields(notification, request);
+    notification = notificationRepository.save(notification);
+    if (notification.getDeliveryType() == NotificationDeliveryType.IMMEDIATE) {
+      dispatch(notification);
+    }
+
+    return NotificationResponse.from(notification);
+  }
+
+  @Transactional(readOnly = true)
+  public NotificationResponse getNotification(Long id) {
+    return NotificationResponse.from(getNotificationEntity(id));
+  }
+
+  @Transactional(readOnly = true)
+  public List<NotificationResponse> listNotifications() {
+    return notificationRepository.findAllByOrderByCreatedAtDesc().stream()
+            .map(NotificationResponse::from)
+            .collect(Collectors.toList());
+  }
+
+  @Transactional
+  public void deleteNotification(Long id) {
+    notificationRepository.delete(getNotificationEntity(id));
+  }
+
+  private Notification getNotificationEntity(Long id) {
+    return notificationRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Notification not found"));
+  }
+
+  // Shared by create and update: validates the request against the notification's
+  // delivery/target rules and writes every field, resetting whichever schedule/target
+  // fields no longer apply so a prior edit can't leave stale values behind.
+  private void applyRequestFields(Notification notification, NotificationRequest request) {
     notification.setTitle(request.getTitle());
     notification.setContent(request.getContent());
     notification.setImageUrl(request.getImageUrl());
     notification.setLink(request.getLink());
     notification.setTargetType(request.getTargetType());
     notification.setDeliveryType(request.getDeliveryType());
-    notification.setCreatedBy(admin);
 
     if (request.getTargetType() == NotificationTargetType.COURSE) {
       if (request.getTargetCourseId() == null) {
@@ -64,6 +116,8 @@ public class NotificationService {
       Course course = courseRepository.findById(request.getTargetCourseId())
               .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Course not found"));
       notification.setTargetCourse(course);
+    } else {
+      notification.setTargetCourse(null);
     }
 
     if (request.getDeliveryType() == NotificationDeliveryType.SCHEDULED) {
@@ -76,6 +130,7 @@ public class NotificationService {
           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "dailyTime is required when recurrenceType is DAILY");
         }
         notification.setDailyTime(request.getDailyTime());
+        notification.setScheduledAt(null);
         notification.setStatus(NotificationStatus.ACTIVE);
       } else {
         if (request.getScheduledAt() == null) {
@@ -85,25 +140,15 @@ public class NotificationService {
           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "scheduledAt must be in the future");
         }
         notification.setScheduledAt(request.getScheduledAt());
+        notification.setDailyTime(null);
         notification.setStatus(NotificationStatus.PENDING);
       }
-
-      notification = notificationRepository.save(notification);
     } else {
       notification.setRecurrenceType(NotificationRecurrenceType.NONE);
+      notification.setScheduledAt(null);
+      notification.setDailyTime(null);
       notification.setStatus(NotificationStatus.PENDING);
-      notification = notificationRepository.save(notification);
-      dispatch(notification);
     }
-
-    return NotificationResponse.from(notification);
-  }
-
-  @Transactional(readOnly = true)
-  public List<NotificationResponse> listNotifications() {
-    return notificationRepository.findAllByOrderByCreatedAtDesc().stream()
-            .map(NotificationResponse::from)
-            .collect(Collectors.toList());
   }
 
   // Resolves recipients and fires off the (async) emails. Called either right away for

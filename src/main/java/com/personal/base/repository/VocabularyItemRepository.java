@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface VocabularyItemRepository extends JpaRepository<VocabularyItem, Long> {
   List<VocabularyItem> findByCourseIdOrderByOrderIndexAsc(Long courseId);
+
+  void deleteByCourseId(Long courseId);
 }
