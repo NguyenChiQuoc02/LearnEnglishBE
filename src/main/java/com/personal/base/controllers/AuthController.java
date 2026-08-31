@@ -16,6 +16,7 @@ import com.personal.base.models.Role;
 import com.personal.base.models.User;
 import com.personal.base.repository.RoleRepository;
 import com.personal.base.repository.UserRepository;
+import com.personal.base.services.EmailService;
 import com.personal.base.services.UserDetailsImpl;
 import jakarta.validation.Valid;
 
@@ -50,6 +51,9 @@ public class AuthController {
 
   @Autowired
   JwtUtils jwtUtils;
+
+  @Autowired
+  EmailService emailService;
 
   @PostMapping("/signin")
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -125,6 +129,8 @@ public class AuthController {
 
     user.setRoles(roles);
     userRepository.save(user);
+
+    emailService.sendRegistrationSuccessEmail(user.getEmail(), user.getUsername());
 
     return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
   }
