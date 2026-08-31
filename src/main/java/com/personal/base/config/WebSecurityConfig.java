@@ -97,6 +97,8 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
                     auth.requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                             .requestMatchers("/api/auth/**").permitAll()
                             .requestMatchers("/api/test/**").permitAll()
+                            .requestMatchers("/api/zalo/webhook").permitAll()
+                            .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/zalo/oauth/callback").permitAll()
                             .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/courses/**").permitAll()
                             .anyRequest().authenticated()
             );

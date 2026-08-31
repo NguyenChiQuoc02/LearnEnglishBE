@@ -165,9 +165,10 @@ public class NotificationService {
     for (Notification notification : notifications) {
       List<User> recipients = resolveRecipients(notification);
       for (User recipient : recipients) {
-        if (recipient.getEmail() == null || recipient.getEmail().isBlank()) continue;
-        emailService.sendNotificationEmail(recipient.getEmail(), notification.getTitle(),
-                notification.getContent(), notification.getImageUrl(), notification.getLink());
+        if (recipient.getEmail() != null && !recipient.getEmail().isBlank()) {
+          emailService.sendNotificationEmail(recipient.getEmail(), notification.getTitle(),
+                  notification.getContent(), notification.getImageUrl(), notification.getLink());
+        }
       }
 
       notification.setLastSentAt(Instant.now());
