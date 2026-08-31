@@ -29,6 +29,8 @@ public interface UserRepository extends JpaRepository<User, Long > {
 
   List<User> findByRoles_Name(ERole name);
 
+  Optional<User> findByZaloLinkCode(String zaloLinkCode);
+
   // Bulk existence checks used by user import: one query per field instead of
   // one exists-query per row, so validating N rows no longer costs 3N round trips.
   List<User> findByUsernameIn(Collection<String> usernames);

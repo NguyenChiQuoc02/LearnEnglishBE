@@ -31,6 +31,9 @@ public class EnrollmentService {
   @Autowired
   private UserRepository userRepository;
 
+  @Autowired
+  private ZaloOaService zaloOaService;
+
   @Transactional
   public EnrollmentResponse enroll(Long userId, Long courseId) {
     return enrollmentRepository.findByUserIdAndCourseId(userId, courseId)
@@ -48,7 +51,14 @@ public class EnrollmentService {
               enrollment.setTotalScore(0);
               enrollment.setWordsLearnedCount(0);
 
-              return EnrollmentResponse.from(enrollmentRepository.save(enrollment));
+              Enrollment saved = enrollmentRepository.save(enrollment);
+
+              if (user.getZaloUserId() != null && !user.getZaloUserId().isBlank()) {
+                zaloOaService.sendTextMessage(user.getZaloUserId(),
+                        "Bạn " + user.getUsername() + " đã đăng ký thành công khóa học " + course.getTitle());
+              }
+
+              return EnrollmentResponse.from(saved);
             });
   }
 

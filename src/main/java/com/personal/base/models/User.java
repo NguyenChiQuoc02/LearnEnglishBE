@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -47,6 +48,18 @@ public class User {
 
   @Column(name = "avatar_url", length = 500)
   private String avatarUrl;
+
+  // Zalo OA follower id, set once the user links their account via the /api/zalo/link-code flow.
+  @Column(name = "zalo_user_id", length = 64)
+  private String zaloUserId;
+
+  // Short-lived code shown to the user to type into the Zalo OA chat, so the webhook can
+  // correlate the Zalo follower who sent it back to this account.
+  @Column(name = "zalo_link_code", length = 12)
+  private String zaloLinkCode;
+
+  @Column(name = "zalo_link_code_expires_at")
+  private Instant zaloLinkCodeExpiresAt;
 
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(  name = "user_roles",
