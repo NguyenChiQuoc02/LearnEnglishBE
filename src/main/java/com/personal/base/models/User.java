@@ -54,6 +54,14 @@ public class User {
           inverseJoinColumns = @JoinColumn(name = "role_id"))
   private Set<Role> roles = new HashSet<>();
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "province_code")
+  private Province province;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "ward_code")
+  private Ward ward;
+
 
   public User(String username, String email, String password) {
     this.username = username;

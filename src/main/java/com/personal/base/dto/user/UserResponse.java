@@ -20,6 +20,10 @@ public class UserResponse {
   private LocalDate dateOfBirth;
   private String address;
   private String avatarUrl;
+  private String provinceCode;
+  private String provinceName;
+  private String wardCode;
+  private String wardName;
   private Set<String> roles;
 
   public static UserResponse from(User user) {
@@ -35,6 +39,10 @@ public class UserResponse {
             user.getDateOfBirth(),
             user.getAddress(),
             user.getAvatarUrl(),
+            user.getProvince() != null ? user.getProvince().getCode() : null,
+            user.getProvince() != null ? user.getProvince().getName() : null,
+            user.getWard() != null ? user.getWard().getCode() : null,
+            user.getWard() != null ? user.getWard().getName() : null,
             roles);
   }
 }
