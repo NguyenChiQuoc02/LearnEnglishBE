@@ -1,5 +1,6 @@
 package com.personal.base.services;
 
+import com.personal.base.dto.common.PageResponse;
 import com.personal.base.dto.course.CourseRequest;
 import com.personal.base.dto.course.CourseResponse;
 import com.personal.base.dto.course.CourseStudentResponse;
@@ -16,6 +17,8 @@ import com.personal.base.repository.LearningSessionRepository;
 import com.personal.base.repository.UserRepository;
 import com.personal.base.repository.VocabularyItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -101,15 +104,19 @@ public class CourseService {
     return CourseResponse.from(getCourseEntity(id));
   }
 
-  public List<CourseResponse> listManagedCourses(UserDetailsImpl currentUser) {
+  @Transactional(readOnly = true)
+  public PageResponse<CourseResponse> listManagedCourses(int page, int size, String keyword, UserDetailsImpl currentUser) {
     boolean isAdmin = currentUser.getAuthorities().stream()
             .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-    List<Course> courses = isAdmin
-            ? courseRepository.findAll()
-            : courseRepository.findByTeacherId(currentUser.getId());
+    String normalizedKeyword = (keyword == null || keyword.isBlank()) ? null : keyword.trim().toLowerCase();
+    PageRequest pageRequest = PageRequest.of(page, size);
 
-    return courses.stream().map(CourseResponse::from).collect(Collectors.toList());
+    Page<Course> courses = isAdmin
+            ? courseRepository.search(normalizedKeyword, pageRequest)
+            : courseRepository.searchByTeacher(currentUser.getId(), normalizedKeyword, pageRequest);
+
+    return PageResponse.of(courses, CourseResponse::from);
   }
 
   @Transactional

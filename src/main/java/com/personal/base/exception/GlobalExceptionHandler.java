@@ -14,11 +14,14 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 // Central place that turns every exception the API can throw into the same
 // {timestamp, status, error, message, path} JSON shape, with the correct HTTP
@@ -94,6 +97,27 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ApiError> handleAccessDenied(HttpServletRequest request) {
     ApiError body = ApiError.of(HttpStatus.FORBIDDEN, "Bạn không có quyền thực hiện thao tác này", request.getRequestURI());
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+  }
+
+  // Endpoint exists but was called with the wrong HTTP method (e.g. GET on a POST-only route).
+  @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+  public ResponseEntity<ApiError> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
+    ApiError body = ApiError.of(HttpStatus.METHOD_NOT_ALLOWED, "Phương thức " + ex.getMethod() + " không được hỗ trợ cho endpoint này", request.getRequestURI());
+    return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(body);
+  }
+
+  // Content-Type of the request body isn't accepted (e.g. missing application/json).
+  @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+  public ResponseEntity<ApiError> handleMediaTypeNotSupported(HttpServletRequest request) {
+    ApiError body = ApiError.of(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Định dạng nội dung gửi lên không được hỗ trợ", request.getRequestURI());
+    return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(body);
+  }
+
+  // No route matches at all (requires spring.mvc.throw-exception-if-no-handler-found=true).
+  @ExceptionHandler(NoHandlerFoundException.class)
+  public ResponseEntity<ApiError> handleNoHandlerFound(HttpServletRequest request) {
+    ApiError body = ApiError.of(HttpStatus.NOT_FOUND, "Không tìm thấy endpoint", request.getRequestURI());
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
   }
 
   // Last resort — never leak the raw exception message/stack trace to the client.
