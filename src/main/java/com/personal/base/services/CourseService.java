@@ -171,6 +171,22 @@ public class CourseService {
     return VocabularyItemResponse.from(vocabularyItemRepository.save(item));
   }
 
+  @Transactional
+  public void deleteVocabularyItem(Long courseId, Long itemId, UserDetailsImpl currentUser) {
+    Course course = getCourseEntity(courseId);
+    assertCanManage(course, currentUser);
+
+    VocabularyItem item = vocabularyItemRepository.findById(itemId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vocabulary item not found"));
+    if (!item.getCourse().getId().equals(courseId)) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Word does not belong to this course");
+    }
+
+    vocabularyItemRepository.delete(item);
+    course.setTotalWords(Math.max(0, course.getTotalWords() - 1));
+    courseRepository.save(course);
+  }
+
   public List<CourseStudentResponse> listStudents(Long courseId, UserDetailsImpl currentUser) {
     Course course = getCourseEntity(courseId);
     assertCanManage(course, currentUser);

@@ -16,6 +16,7 @@ import com.personal.base.models.Role;
 import com.personal.base.models.User;
 import com.personal.base.repository.RoleRepository;
 import com.personal.base.repository.UserRepository;
+import com.personal.base.services.DiscordNotificationService;
 import com.personal.base.services.EmailService;
 import com.personal.base.services.UserDetailsImpl;
 import jakarta.validation.Valid;
@@ -54,6 +55,9 @@ public class AuthController {
 
   @Autowired
   EmailService emailService;
+
+  @Autowired
+  DiscordNotificationService discordNotificationService;
 
   @PostMapping("/signin")
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -131,6 +135,9 @@ public class AuthController {
     userRepository.save(user);
 
     emailService.sendRegistrationSuccessEmail(user.getEmail(), user.getUsername());
+
+    discordNotificationService.sendMessage("Học viên mới đăng ký",
+            "Học viên **" + user.getUsername() + "** (" + user.getEmail() + ") vừa đăng ký tài khoản thành công.");
 
     return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
   }

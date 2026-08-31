@@ -105,6 +105,15 @@ public class CourseController {
     return ResponseEntity.ok(courseService.updateVocabularyItem(id, itemId, request, currentUser));
   }
 
+  @DeleteMapping("/{id}/vocabulary/{itemId}")
+  @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
+  public ResponseEntity<Void> deleteVocabularyItem(@PathVariable Long id,
+                                                    @PathVariable Long itemId,
+                                                    @AuthenticationPrincipal UserDetailsImpl currentUser) {
+    courseService.deleteVocabularyItem(id, itemId, currentUser);
+    return ResponseEntity.noContent().build();
+  }
+
   @GetMapping("/{id}/students")
   @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
   public ResponseEntity<List<CourseStudentResponse>> listStudents(@PathVariable Long id,

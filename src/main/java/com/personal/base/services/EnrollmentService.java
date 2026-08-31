@@ -34,6 +34,9 @@ public class EnrollmentService {
   @Autowired
   private ZaloOaService zaloOaService;
 
+  @Autowired
+  private DiscordNotificationService discordNotificationService;
+
   @Transactional
   public EnrollmentResponse enroll(Long userId, Long courseId) {
     return enrollmentRepository.findByUserIdAndCourseId(userId, courseId)
@@ -57,6 +60,9 @@ public class EnrollmentService {
                 zaloOaService.sendTextMessage(user.getZaloUserId(),
                         "Bạn " + user.getUsername() + " đã đăng ký thành công khóa học " + course.getTitle());
               }
+
+              discordNotificationService.sendMessage("Học viên đăng ký khóa học",
+                      "Học viên **" + user.getUsername() + "** đã đăng ký khóa học **" + course.getTitle() + "**.");
 
               return EnrollmentResponse.from(saved);
             });
