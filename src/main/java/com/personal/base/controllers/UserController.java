@@ -4,6 +4,7 @@ import com.personal.base.dto.common.PageResponse;
 import com.personal.base.dto.user.BulkDeleteRequest;
 import com.personal.base.dto.user.BulkDeleteResponse;
 import com.personal.base.dto.user.ChangePasswordRequest;
+import com.personal.base.dto.user.ProfileUpdateRequest;
 import com.personal.base.dto.user.TeacherResponse;
 import com.personal.base.dto.user.UserImportResponse;
 import com.personal.base.dto.user.UserRequest;
@@ -95,6 +96,17 @@ public class UserController {
   public ResponseEntity<BulkDeleteResponse> bulkDeleteUsers(@Valid @RequestBody BulkDeleteRequest request,
                                                              @AuthenticationPrincipal UserDetailsImpl currentUser) {
     return ResponseEntity.ok(userService.bulkDeleteUsers(request.getIds(), currentUser.getId()));
+  }
+
+  @GetMapping("/me")
+  public ResponseEntity<UserResponse> getMe(@AuthenticationPrincipal UserDetailsImpl currentUser) {
+    return ResponseEntity.ok(userService.getUser(currentUser.getId()));
+  }
+
+  @PutMapping("/me")
+  public ResponseEntity<UserResponse> updateMe(@Valid @RequestBody ProfileUpdateRequest request,
+                                                @AuthenticationPrincipal UserDetailsImpl currentUser) {
+    return ResponseEntity.ok(userService.updateMyProfile(currentUser.getId(), request));
   }
 
   @PutMapping("/me/password")

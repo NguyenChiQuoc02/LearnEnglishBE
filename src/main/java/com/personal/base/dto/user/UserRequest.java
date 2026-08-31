@@ -27,5 +27,9 @@ public class UserRequest {
 
   private String avatarUrl;
 
+  private String provinceCode;
+
+  private String wardCode;
+
   private Set<String> roles;
 }

@@ -4,17 +4,22 @@ import com.personal.base.dto.common.PageResponse;
 import com.personal.base.dto.user.BulkDeleteResponse;
 import com.personal.base.dto.user.BulkDeleteResult;
 import com.personal.base.dto.user.ChangePasswordRequest;
+import com.personal.base.dto.user.ProfileUpdateRequest;
 import com.personal.base.dto.user.UserImportResponse;
 import com.personal.base.dto.user.UserImportRowResult;
 import com.personal.base.dto.user.UserRequest;
 import com.personal.base.dto.user.UserResponse;
 import com.personal.base.models.ERole;
+import com.personal.base.models.Province;
 import com.personal.base.models.Role;
 import com.personal.base.models.StagingUserImport;
 import com.personal.base.models.User;
+import com.personal.base.models.Ward;
+import com.personal.base.repository.ProvinceRepository;
 import com.personal.base.repository.RoleRepository;
 import com.personal.base.repository.StagingUserImportRepository;
 import com.personal.base.repository.UserRepository;
+import com.personal.base.repository.WardRepository;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
@@ -69,6 +74,12 @@ public class UserService {
   private RoleRepository roleRepository;
 
   @Autowired
+  private ProvinceRepository provinceRepository;
+
+  @Autowired
+  private WardRepository wardRepository;
+
+  @Autowired
   private StagingUserImportRepository stagingUserImportRepository;
 
   @Autowired
@@ -100,6 +111,7 @@ public class UserService {
     user.setAddress(request.getAddress());
     user.setAvatarUrl(request.getAvatarUrl());
     user.setRoles(resolveRoles(request.getRoles()));
+    applyAddress(user, request.getProvinceCode(), request.getWardCode());
 
     return UserResponse.from(userRepository.save(user));
   }
@@ -122,6 +134,20 @@ public class UserService {
     user.setAddress(request.getAddress());
     user.setAvatarUrl(request.getAvatarUrl());
     user.setRoles(resolveRoles(request.getRoles()));
+    applyAddress(user, request.getProvinceCode(), request.getWardCode());
+
+    return UserResponse.from(userRepository.save(user));
+  }
+
+  @Transactional
+  public UserResponse updateMyProfile(Long id, ProfileUpdateRequest request) {
+    User user = getUserEntity(id);
+
+    user.setPhoneNumber(request.getPhoneNumber());
+    user.setDateOfBirth(request.getDateOfBirth());
+    user.setAddress(request.getAddress());
+    user.setAvatarUrl(request.getAvatarUrl());
+    applyAddress(user, request.getProvinceCode(), request.getWardCode());
 
     return UserResponse.from(userRepository.save(user));
   }
@@ -178,6 +204,35 @@ public class UserService {
     }
     user.setPassword(encoder.encode(request.getNewPassword()));
     userRepository.save(user);
+  }
+
+  private void applyAddress(User user, String provinceCode, String wardCode) {
+    Province province = resolveProvince(provinceCode);
+    Ward ward = resolveWard(wardCode, province);
+    user.setProvince(province);
+    user.setWard(ward);
+  }
+
+  private Province resolveProvince(String provinceCode) {
+    if (provinceCode == null || provinceCode.isBlank()) {
+      return null;
+    }
+    return provinceRepository.findById(provinceCode)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid province code"));
+  }
+
+  private Ward resolveWard(String wardCode, Province province) {
+    if (wardCode == null || wardCode.isBlank()) {
+      return null;
+    }
+    Ward ward = wardRepository.findById(wardCode)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid ward code"));
+    boolean belongsToProvince = province != null && ward.getProvince() != null
+            && ward.getProvince().getCode().equals(province.getCode());
+    if (!belongsToProvince) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ward does not belong to the selected province");
+    }
+    return ward;
   }
 
   private User getUserEntity(Long id) {
