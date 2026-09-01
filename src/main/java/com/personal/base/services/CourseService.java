@@ -65,6 +65,7 @@ public class CourseService {
     course.setPointsPerWrong(request.getPointsPerWrong() != null ? request.getPointsPerWrong() : -2);
     course.setTotalWords(0);
     course.setPublished(request.getPublished() != null ? request.getPublished() : false);
+    course.setPrice(request.getPrice() != null ? request.getPrice() : java.math.BigDecimal.ZERO);
 
     return CourseResponse.from(courseRepository.save(course));
   }
@@ -89,6 +90,7 @@ public class CourseService {
     if (request.getPointsPerCorrect() != null) course.setPointsPerCorrect(request.getPointsPerCorrect());
     if (request.getPointsPerWrong() != null) course.setPointsPerWrong(request.getPointsPerWrong());
     if (request.getPublished() != null) course.setPublished(request.getPublished());
+    course.setPrice(request.getPrice() != null ? request.getPrice() : java.math.BigDecimal.ZERO);
 
     return CourseResponse.from(courseRepository.save(course));
   }

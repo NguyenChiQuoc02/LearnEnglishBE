@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity
@@ -59,6 +60,10 @@ public class Course {
 
   @Column(nullable = false)
   private Boolean published = false;
+
+  // Course price in VND. Zero means free — enrollment skips the payment flow.
+  @Column(nullable = false, precision = 12, scale = 2)
+  private BigDecimal price = BigDecimal.ZERO;
 
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt = Instant.now();

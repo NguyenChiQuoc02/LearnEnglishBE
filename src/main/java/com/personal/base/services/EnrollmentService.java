@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -37,35 +38,57 @@ public class EnrollmentService {
   @Autowired
   private DiscordNotificationService discordNotificationService;
 
+  // Free-enroll entry point: blocks straight away if the course requires payment,
+  // unless the caller is already enrolled (idempotent short-circuit).
   @Transactional
   public EnrollmentResponse enroll(Long userId, Long courseId) {
     return enrollmentRepository.findByUserIdAndCourseId(userId, courseId)
             .map(EnrollmentResponse::from)
             .orElseGet(() -> {
-              User user = userRepository.findById(userId)
-                      .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
               Course course = courseRepository.findById(courseId)
                       .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
-
-              Enrollment enrollment = new Enrollment();
-              enrollment.setUser(user);
-              enrollment.setCourse(course);
-              enrollment.setStatus(EnrollmentStatus.ACTIVE);
-              enrollment.setTotalScore(0);
-              enrollment.setWordsLearnedCount(0);
-
-              Enrollment saved = enrollmentRepository.save(enrollment);
-
-              if (user.getZaloUserId() != null && !user.getZaloUserId().isBlank()) {
-                zaloOaService.sendTextMessage(user.getZaloUserId(),
-                        "Bạn " + user.getUsername() + " đã đăng ký thành công khóa học " + course.getTitle());
+              if (course.getPrice() != null && course.getPrice().compareTo(BigDecimal.ZERO) > 0) {
+                throw new ResponseStatusException(HttpStatus.PAYMENT_REQUIRED, "This course requires payment");
               }
-
-              discordNotificationService.sendMessage("Học viên đăng ký khóa học",
-                      "Học viên **" + user.getUsername() + "** đã đăng ký khóa học **" + course.getTitle() + "**.");
-
-              return EnrollmentResponse.from(saved);
+              return doEnroll(userId, course);
             });
+  }
+
+  // Called by PaymentService once a course payment has succeeded — no price check,
+  // since payment has already been collected.
+  @Transactional
+  public EnrollmentResponse enrollAfterPayment(Long userId, Long courseId) {
+    return enrollmentRepository.findByUserIdAndCourseId(userId, courseId)
+            .map(EnrollmentResponse::from)
+            .orElseGet(() -> {
+              Course course = courseRepository.findById(courseId)
+                      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
+              return doEnroll(userId, course);
+            });
+  }
+
+  private EnrollmentResponse doEnroll(Long userId, Course course) {
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+
+    Enrollment enrollment = new Enrollment();
+    enrollment.setUser(user);
+    enrollment.setCourse(course);
+    enrollment.setStatus(EnrollmentStatus.ACTIVE);
+    enrollment.setTotalScore(0);
+    enrollment.setWordsLearnedCount(0);
+
+    Enrollment saved = enrollmentRepository.save(enrollment);
+
+    if (user.getZaloUserId() != null && !user.getZaloUserId().isBlank()) {
+      zaloOaService.sendTextMessage(user.getZaloUserId(),
+              "Bạn " + user.getUsername() + " đã đăng ký thành công khóa học " + course.getTitle());
+    }
+
+    discordNotificationService.sendMessage("Học viên đăng ký khóa học",
+            "Học viên **" + user.getUsername() + "** đã đăng ký khóa học **" + course.getTitle() + "**.");
+
+    return EnrollmentResponse.from(saved);
   }
 
   public List<EnrollmentResponse> listMyEnrollments(Long userId) {
