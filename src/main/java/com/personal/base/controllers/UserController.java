@@ -65,6 +65,12 @@ public class UserController {
     return ResponseEntity.ok(userService.listUsers(page, size, keyword));
   }
 
+  @GetMapping("/all")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<List<UserResponse>> listAllUsers() {
+    return ResponseEntity.ok(userService.listAllUsers());
+  }
+
   @GetMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<UserResponse> getUser(@PathVariable Long id) {

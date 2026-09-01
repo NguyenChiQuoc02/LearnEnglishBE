@@ -29,11 +29,13 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -94,6 +96,14 @@ public class UserService {
 
   public UserResponse getUser(Long id) {
     return UserResponse.from(getUserEntity(id));
+  }
+
+  @Cacheable("users")
+  @Transactional(readOnly = true)
+  public List<UserResponse> listAllUsers() {
+    return userRepository.findAll(Sort.by("id")).stream()
+            .map(UserResponse::from)
+            .collect(Collectors.toList());
   }
 
   @Transactional
