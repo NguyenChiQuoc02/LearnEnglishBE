@@ -5,6 +5,7 @@ import com.personal.base.dto.address.WardResponse;
 import com.personal.base.repository.ProvinceRepository;
 import com.personal.base.repository.WardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ public class AddressService {
   @Autowired
   private WardRepository wardRepository;
 
+  @Cacheable("provinces")
   public List<ProvinceResponse> listProvinces() {
     return provinceRepository.findAll(Sort.by("name")).stream()
             .map(ProvinceResponse::from)
@@ -29,6 +31,13 @@ public class AddressService {
   public List<WardResponse> listWardsByProvince(String provinceCode) {
     return wardRepository.findByProvinceCode(provinceCode).stream()
             .sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName()))
+            .map(WardResponse::from)
+            .collect(Collectors.toList());
+  }
+
+  @Cacheable("wards")
+  public List<WardResponse> listAllWards() {
+    return wardRepository.findAll(Sort.by("name")).stream()
             .map(WardResponse::from)
             .collect(Collectors.toList());
   }
