@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 @Data
@@ -27,6 +28,7 @@ public class CourseResponse {
   private Integer totalWords;
   private Boolean published;
   private Instant createdAt;
+  private BigDecimal price;
 
   public static CourseResponse from(Course course) {
     return new CourseResponse(
@@ -43,6 +45,7 @@ public class CourseResponse {
             course.getPointsPerWrong(),
             course.getTotalWords(),
             course.getPublished(),
-            course.getCreatedAt());
+            course.getCreatedAt(),
+            course.getPrice());
   }
 }
