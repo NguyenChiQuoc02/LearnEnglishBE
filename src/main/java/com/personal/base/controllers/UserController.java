@@ -9,7 +9,7 @@ import com.personal.base.dto.user.TeacherResponse;
 import com.personal.base.dto.user.UserImportResponse;
 import com.personal.base.dto.user.UserRequest;
 import com.personal.base.dto.user.UserResponse;
-import com.personal.base.models.ERole;
+import com.personal.base.models.type.ERole;
 import com.personal.base.repository.UserRepository;
 import com.personal.base.services.UserDetailsImpl;
 import com.personal.base.services.UserService;

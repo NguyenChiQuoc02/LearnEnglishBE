@@ -1,8 +1,8 @@
 package com.personal.base.repository;
 
 import com.personal.base.models.WalletTransaction;
-import com.personal.base.models.WalletTransactionStatus;
-import com.personal.base.models.WalletTransactionType;
+import com.personal.base.models.type.WalletTransactionStatus;
+import com.personal.base.models.type.WalletTransactionType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

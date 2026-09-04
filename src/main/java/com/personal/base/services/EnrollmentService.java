@@ -4,7 +4,7 @@ import com.personal.base.dto.enrollment.EnrollmentResponse;
 import com.personal.base.dto.enrollment.LeaderboardEntryResponse;
 import com.personal.base.models.Course;
 import com.personal.base.models.Enrollment;
-import com.personal.base.models.EnrollmentStatus;
+import com.personal.base.models.type.EnrollmentStatus;
 import com.personal.base.models.User;
 import com.personal.base.repository.CourseRepository;
 import com.personal.base.repository.EnrollmentRepository;

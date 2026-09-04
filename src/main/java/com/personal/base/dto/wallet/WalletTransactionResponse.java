@@ -1,9 +1,9 @@
 package com.personal.base.dto.wallet;
 
-import com.personal.base.models.PaymentMethod;
+import com.personal.base.models.type.PaymentMethod;
 import com.personal.base.models.WalletTransaction;
-import com.personal.base.models.WalletTransactionStatus;
-import com.personal.base.models.WalletTransactionType;
+import com.personal.base.models.type.WalletTransactionStatus;
+import com.personal.base.models.type.WalletTransactionType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

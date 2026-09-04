@@ -9,7 +9,7 @@ import com.personal.base.models.Course;
 import com.personal.base.models.Enrollment;
 import com.personal.base.models.LearningSession;
 import com.personal.base.models.LearningSessionItem;
-import com.personal.base.models.SessionStatus;
+import com.personal.base.models.type.SessionStatus;
 import com.personal.base.models.User;
 import com.personal.base.models.UserVocabularyProgress;
 import com.personal.base.models.VocabularyItem;

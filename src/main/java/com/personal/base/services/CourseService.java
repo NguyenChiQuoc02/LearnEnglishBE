@@ -8,7 +8,7 @@ import com.personal.base.dto.course.VocabularyItemRequest;
 import com.personal.base.dto.course.VocabularyItemResponse;
 import com.personal.base.dto.session.LearningSessionSummaryResponse;
 import com.personal.base.models.Course;
-import com.personal.base.models.CourseType;
+import com.personal.base.models.type.CourseType;
 import com.personal.base.models.User;
 import com.personal.base.models.VocabularyItem;
 import com.personal.base.repository.CourseRepository;

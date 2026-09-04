@@ -1,9 +1,9 @@
 package com.personal.base.services;
 
 import com.personal.base.models.Notification;
-import com.personal.base.models.NotificationDeliveryType;
-import com.personal.base.models.NotificationRecurrenceType;
-import com.personal.base.models.NotificationStatus;
+import com.personal.base.models.type.NotificationDeliveryType;
+import com.personal.base.models.type.NotificationRecurrenceType;
+import com.personal.base.models.type.NotificationStatus;
 import com.personal.base.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;

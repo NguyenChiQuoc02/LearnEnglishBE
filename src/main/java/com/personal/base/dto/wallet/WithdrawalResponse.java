@@ -1,7 +1,7 @@
 package com.personal.base.dto.wallet;
 
 import com.personal.base.models.WithdrawalRequest;
-import com.personal.base.models.WithdrawalStatus;
+import com.personal.base.models.type.WithdrawalStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

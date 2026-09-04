@@ -11,7 +11,7 @@ import com.personal.base.dto.auth.JwtResponse;
 import com.personal.base.dto.auth.LoginRequest;
 import com.personal.base.dto.auth.MessageResponse;
 import com.personal.base.dto.auth.SignupRequest;
-import com.personal.base.models.ERole;
+import com.personal.base.models.type.ERole;
 import com.personal.base.models.Role;
 import com.personal.base.models.User;
 import com.personal.base.repository.RoleRepository;

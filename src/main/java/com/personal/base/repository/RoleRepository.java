@@ -1,6 +1,6 @@
 package com.personal.base.repository;
 
-import com.personal.base.models.ERole;
+import com.personal.base.models.type.ERole;
 import com.personal.base.models.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 

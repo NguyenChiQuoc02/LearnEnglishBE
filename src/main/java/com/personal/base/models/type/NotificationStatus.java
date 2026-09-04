@@ -1,4 +1,4 @@
-package com.personal.base.models;
+package com.personal.base.models.type;
 
 public enum NotificationStatus {
   // One-time scheduled notification waiting for its scheduledAt to arrive.

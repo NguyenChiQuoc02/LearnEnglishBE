@@ -1,7 +1,7 @@
 package com.personal.base.services.export;
 
-import com.personal.base.models.ERole;
-import com.personal.base.models.ExportFormat;
+import com.personal.base.models.type.ERole;
+import com.personal.base.models.type.ExportFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

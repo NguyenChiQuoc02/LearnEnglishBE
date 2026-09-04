@@ -1,6 +1,6 @@
 package com.personal.base.models;
 
-
+import com.personal.base.models.type.ERole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,7 +1,7 @@
 package com.personal.base.dto.session;
 
 import com.personal.base.models.LearningSession;
-import com.personal.base.models.SessionStatus;
+import com.personal.base.models.type.SessionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
