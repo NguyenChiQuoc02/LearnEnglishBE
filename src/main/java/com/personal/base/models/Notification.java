@@ -1,5 +1,9 @@
 package com.personal.base.models;
 
+import com.personal.base.models.type.NotificationDeliveryType;
+import com.personal.base.models.type.NotificationRecurrenceType;
+import com.personal.base.models.type.NotificationStatus;
+import com.personal.base.models.type.NotificationTargetType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

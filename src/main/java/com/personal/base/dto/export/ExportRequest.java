@@ -1,6 +1,6 @@
 package com.personal.base.dto.export;
 
-import com.personal.base.models.ExportFormat;
+import com.personal.base.models.type.ExportFormat;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;

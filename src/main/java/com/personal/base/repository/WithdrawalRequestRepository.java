@@ -1,7 +1,7 @@
 package com.personal.base.repository;
 
 import com.personal.base.models.WithdrawalRequest;
-import com.personal.base.models.WithdrawalStatus;
+import com.personal.base.models.type.WithdrawalStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -9,7 +9,7 @@ import com.personal.base.dto.user.UserImportResponse;
 import com.personal.base.dto.user.UserImportRowResult;
 import com.personal.base.dto.user.UserRequest;
 import com.personal.base.dto.user.UserResponse;
-import com.personal.base.models.ERole;
+import com.personal.base.models.type.ERole;
 import com.personal.base.models.Province;
 import com.personal.base.models.Role;
 import com.personal.base.models.StagingUserImport;

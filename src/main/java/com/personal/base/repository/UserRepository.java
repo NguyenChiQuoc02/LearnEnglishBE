@@ -1,6 +1,6 @@
 package com.personal.base.repository;
 
-import com.personal.base.models.ERole;
+import com.personal.base.models.type.ERole;
 import com.personal.base.models.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

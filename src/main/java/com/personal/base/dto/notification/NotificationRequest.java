@@ -1,8 +1,8 @@
 package com.personal.base.dto.notification;
 
-import com.personal.base.models.NotificationDeliveryType;
-import com.personal.base.models.NotificationRecurrenceType;
-import com.personal.base.models.NotificationTargetType;
+import com.personal.base.models.type.NotificationDeliveryType;
+import com.personal.base.models.type.NotificationRecurrenceType;
+import com.personal.base.models.type.NotificationTargetType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

@@ -1,6 +1,6 @@
 package com.personal.base.config;
 
-import com.personal.base.models.ERole;
+import com.personal.base.models.type.ERole;
 import com.personal.base.models.Role;
 import com.personal.base.repository.RoleRepository;
 import org.springframework.boot.CommandLineRunner;

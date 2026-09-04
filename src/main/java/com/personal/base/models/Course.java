@@ -1,5 +1,7 @@
 package com.personal.base.models;
 
+import com.personal.base.models.type.CourseLevel;
+import com.personal.base.models.type.CourseType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

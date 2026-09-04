@@ -1,7 +1,7 @@
 package com.personal.base.dto.course;
 
-import com.personal.base.models.CourseLevel;
-import com.personal.base.models.CourseType;
+import com.personal.base.models.type.CourseLevel;
+import com.personal.base.models.type.CourseType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

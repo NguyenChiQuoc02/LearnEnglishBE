@@ -1,8 +1,8 @@
 package com.personal.base.dto.course;
 
 import com.personal.base.models.Course;
-import com.personal.base.models.CourseLevel;
-import com.personal.base.models.CourseType;
+import com.personal.base.models.type.CourseLevel;
+import com.personal.base.models.type.CourseType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

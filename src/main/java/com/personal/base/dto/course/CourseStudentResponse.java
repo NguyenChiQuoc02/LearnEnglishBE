@@ -1,7 +1,7 @@
 package com.personal.base.dto.course;
 
 import com.personal.base.models.Enrollment;
-import com.personal.base.models.EnrollmentStatus;
+import com.personal.base.models.type.EnrollmentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
