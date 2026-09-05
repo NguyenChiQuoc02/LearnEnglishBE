@@ -1,6 +1,7 @@
 package com.personal.base.models;
 
 
+import com.personal.base.models.type.AuthProvider;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -60,6 +61,16 @@ public class User {
 
   @Column(name = "zalo_link_code_expires_at")
   private Instant zaloLinkCodeExpiresAt;
+
+  // How this account authenticates. Google-only accounts still get a random,
+  // unusable password hash so the @NotBlank/JPA validation above stays satisfied.
+  @Enumerated(EnumType.STRING)
+  @Column(name = "auth_provider", nullable = false, length = 20)
+  private AuthProvider authProvider = AuthProvider.LOCAL;
+
+  // Google account's stable "sub" claim, set the first time a user signs in with Google.
+  @Column(name = "google_id", length = 64, unique = true)
+  private String googleId;
 
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(  name = "user_roles",
