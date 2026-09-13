@@ -17,9 +17,12 @@ import com.personal.base.repository.UserRepository;
 import com.personal.base.repository.WalletRepository;
 import com.personal.base.repository.WalletTransactionRepository;
 import com.personal.base.repository.WithdrawalRequestRepository;
+import com.personal.base.specification.WalletTransactionSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,10 +67,13 @@ public class WalletService {
     return WalletResponse.from(getOrCreateWallet(userId));
   }
 
-  public PageResponse<WalletTransactionResponse> listMyTransactions(Long userId, int page, int size) {
+  public PageResponse<WalletTransactionResponse> listMyTransactions(Long userId, String keyword, int page, int size) {
     Wallet wallet = getOrCreateWallet(userId);
+    Specification<WalletTransaction> spec = Specification
+            .where(WalletTransactionSpecification.hasWalletId(wallet.getId()))
+            .and(WalletTransactionSpecification.matchesKeyword(keyword));
     Page<WalletTransaction> transactions = walletTransactionRepository
-            .findByWalletIdOrderByCreatedAtDesc(wallet.getId(), PageRequest.of(page, size));
+            .findAll(spec, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")));
     return PageResponse.of(transactions, tx -> WalletTransactionResponse.from(tx, false));
   }
 

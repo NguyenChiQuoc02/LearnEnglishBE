@@ -36,10 +36,11 @@ public class WalletController {
 
   @GetMapping("/me/transactions")
   public ResponseEntity<PageResponse<WalletTransactionResponse>> listMyTransactions(
+          @RequestParam(required = false) String keyword,
           @RequestParam(defaultValue = "0") int page,
           @RequestParam(defaultValue = "20") int size,
           @AuthenticationPrincipal UserDetailsImpl currentUser) {
-    return ResponseEntity.ok(walletService.listMyTransactions(currentUser.getId(), page, size));
+    return ResponseEntity.ok(walletService.listMyTransactions(currentUser.getId(), keyword, page, size));
   }
 
   @PostMapping("/topup")
