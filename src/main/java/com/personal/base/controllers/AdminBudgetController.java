@@ -2,11 +2,14 @@ package com.personal.base.controllers;
 
 import com.personal.base.dto.admin.BudgetOverviewResponse;
 import com.personal.base.dto.common.PageResponse;
+import com.personal.base.dto.wallet.TransferRequest;
+import com.personal.base.dto.wallet.TransferResponse;
 import com.personal.base.dto.wallet.WalletTransactionResponse;
 import com.personal.base.dto.wallet.WithdrawalDecisionRequest;
 import com.personal.base.dto.wallet.WithdrawalResponse;
 import com.personal.base.services.AdminBudgetService;
 import com.personal.base.services.UserDetailsImpl;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -68,5 +71,12 @@ public class AdminBudgetController {
                                                                @AuthenticationPrincipal UserDetailsImpl currentUser) {
     String note = request != null ? request.getAdminNote() : null;
     return ResponseEntity.ok(adminBudgetService.rejectWithdrawal(id, currentUser.getId(), note));
+  }
+
+  @PostMapping("/transfer")
+  public ResponseEntity<TransferResponse> transfer(@Valid @RequestBody TransferRequest request,
+                                                     @AuthenticationPrincipal UserDetailsImpl currentUser) {
+    return ResponseEntity.ok(adminBudgetService.transferToUser(
+            currentUser.getId(), request.getTargetUserId(), request.getAmount(), request.getNote()));
   }
 }

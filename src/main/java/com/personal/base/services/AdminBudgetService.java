@@ -2,9 +2,11 @@ package com.personal.base.services;
 
 import com.personal.base.dto.admin.BudgetOverviewResponse;
 import com.personal.base.dto.common.PageResponse;
+import com.personal.base.dto.wallet.TransferResponse;
 import com.personal.base.dto.wallet.WalletTransactionResponse;
 import com.personal.base.dto.wallet.WithdrawalResponse;
 import com.personal.base.models.User;
+import com.personal.base.models.Wallet;
 import com.personal.base.models.WalletTransaction;
 import com.personal.base.models.type.WalletTransactionStatus;
 import com.personal.base.models.type.WalletTransactionType;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 @Service
@@ -118,6 +121,62 @@ public class AdminBudgetService {
     request.setProcessedBy(admin);
 
     return WithdrawalResponse.from(withdrawalRequestRepository.save(request));
+  }
+
+  // Admins share a single wallet as the "budget" source: the amount is debited from the
+  // acting admin's own wallet and credited to the target user's wallet, both recorded as
+  // TRANSFER transactions so they show up in the budget transaction history.
+  @Transactional
+  public TransferResponse transferToUser(Long adminId, Long targetUserId, BigDecimal amount, String note) {
+    if (adminId.equals(targetUserId)) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Không thể chuyển tiền cho chính mình");
+    }
+
+    Wallet adminWallet = walletRepository.findByUserId(adminId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Admin not found"));
+    if (adminWallet.getBalance().compareTo(amount) < 0) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Số dư ví admin không đủ");
+    }
+
+    User targetUser = userRepository.findById(targetUserId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    Wallet targetWallet = walletRepository.findByUserId(targetUserId).orElseGet(() -> {
+      Wallet wallet = new Wallet();
+      wallet.setUser(targetUser);
+      wallet.setBalance(BigDecimal.ZERO);
+      return walletRepository.save(wallet);
+    });
+
+    adminWallet.setBalance(adminWallet.getBalance().subtract(amount));
+    walletRepository.save(adminWallet);
+
+    WalletTransaction debit = new WalletTransaction();
+    debit.setWallet(adminWallet);
+    debit.setType(WalletTransactionType.TRANSFER);
+    debit.setStatus(WalletTransactionStatus.SUCCESS);
+    debit.setAmount(amount);
+    debit.setNote(note != null && !note.isBlank() ? note : "Chuyển tiền cho " + targetUser.getUsername());
+    walletTransactionRepository.save(debit);
+
+    targetWallet.setBalance(targetWallet.getBalance().add(amount));
+    walletRepository.save(targetWallet);
+
+    WalletTransaction credit = new WalletTransaction();
+    credit.setWallet(targetWallet);
+    credit.setType(WalletTransactionType.TRANSFER);
+    credit.setStatus(WalletTransactionStatus.SUCCESS);
+    credit.setAmount(amount);
+    credit.setNote(note != null && !note.isBlank() ? note : "Nhận tiền từ admin");
+    WalletTransaction savedCredit = walletTransactionRepository.save(credit);
+
+    return new TransferResponse(
+            savedCredit.getId(),
+            targetUser.getId(),
+            targetUser.getUsername(),
+            amount,
+            savedCredit.getNote(),
+            adminWallet.getBalance(),
+            savedCredit.getCreatedAt());
   }
 
   private <T extends Enum<T>> T parseEnum(Class<T> enumClass, String value) {

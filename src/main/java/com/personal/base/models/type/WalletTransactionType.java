@@ -4,5 +4,6 @@ public enum WalletTransactionType {
   TOPUP,
   WITHDRAW,
   COURSE_PAYMENT,
-  REFUND
+  REFUND,
+  TRANSFER
 }
