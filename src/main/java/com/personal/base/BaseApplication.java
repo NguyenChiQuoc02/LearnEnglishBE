@@ -11,6 +11,9 @@ public class BaseApplication {
 
 	public static void main(String[] args) {
 		checkTcpReachability("gateway01.ap-southeast-1.prod.aws.tidbcloud.com", 4000);
+		String dbUrl = System.getenv("DB_URL");
+		System.out.println("[net-check] DB_URL env var is set: " + (dbUrl != null && !dbUrl.isBlank()));
+		System.out.println("[net-check] DB_URL points at TiDB host: " + (dbUrl != null && dbUrl.contains("tidbcloud.com")));
 		SpringApplication.run(BaseApplication.class, args);
 	}
 
